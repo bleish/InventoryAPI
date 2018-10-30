@@ -22,14 +22,23 @@ namespace ItemsListAPI.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Retrieves a list of all inventory items.
+        /// </summary>
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<ItemReadViewModel>), 200)]
         public async Task<ActionResult> Get()
         {
             var items = await _itemsRepository.GetMany();
             return Ok(_mapper.Map<List<ItemReadViewModel>>(items));
         }
 
+        /// <summary>
+        /// Retrieves a single inventory item.
+        /// </summary>
+        /// <param name="id">Item ID (ObjectId format).</param>
         [HttpGet("{id}", Name = "GetItem")]
+        [ProducesResponseType(typeof(ItemReadViewModel), 200)]
         public async Task<ActionResult> Get(string id)
         {
             if (!ObjectId.TryParse(id, out _))
@@ -44,17 +53,26 @@ namespace ItemsListAPI.Controllers
             return Ok(_mapper.Map<ItemReadViewModel>(item));
         }
 
+        /// <summary>
+        /// Creates a single inventory item.
+        /// </summary>
+        /// <param name="itemViewModel">See the model for details.</param>
         [HttpPost]
-        public async Task<ActionResult> Create(ItemViewModel item)
+        public async Task<ActionResult> Create(ItemViewModel itemViewModel)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
-            var newItem = await _itemsRepository.Add(_mapper.Map<Item>(item));
+            var newItem = await _itemsRepository.Add(_mapper.Map<Item>(itemViewModel));
             return CreatedAtRoute("GetItem", new { id = newItem.Id }, null);
         }
 
+        /// <summary>
+        /// Updates a single inventory item.
+        /// </summary>
+        /// <param name="id">Item ID (ObjectId format).</param>
+        /// <param name="itemViewModel">See the model for details.</param>
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(string id, ItemViewModel itemViewModel)
         {
@@ -75,6 +93,10 @@ namespace ItemsListAPI.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Removes a single inventory item.
+        /// </summary>
+        /// <param name="id">Item ID (ObjectId format).</param>
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(string id)
         {
