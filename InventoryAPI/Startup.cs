@@ -84,7 +84,7 @@ namespace InventoryAPI
                 c.SwaggerEndpoint($"/swagger/{SwaggerVersion}/swagger.json", $"{SwaggerTitle} {SwaggerVersion}");
             });
 
-            app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
             app.UseMvc();
         }
     }
