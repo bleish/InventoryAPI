@@ -8,30 +8,39 @@ namespace InventoryAPI.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+        public virtual string Id { get; set; }
 
         [BsonElement("name")]
         [Required]
-        public string Name { get; set; }
+        public virtual string Name { get; set; }
 
         [BsonElement("model")]
         [Required]
-        public string Model { get; set; }
+        public virtual string Model { get; set; }
 
         [BsonElement("category")]
         [Required]
-        public string Category { get; set; }
+        public virtual string Category { get; set; }
 
         [BsonElement("cost")]
         [BsonIgnoreIfNull]
-        public double? Cost { get; set; }
+        public virtual double? Cost { get; set; }
 
         [BsonElement("notes")]
         [BsonIgnoreIfNull]
-        public string Notes { get; set; }
+        public virtual string Notes { get; set; }
 
         [BsonElement("referenceTable")]
         [BsonIgnoreIfNull]
-        public string ReferenceTable { get; set; }
+        public virtual string ReferenceTable { get; set; }
+
+        [BsonElement("fetal")]
+        [BsonIgnoreIfNull]
+        public virtual FetalClass Fetal { get; set; }
+    }
+
+    public class FetalClass
+    {
+        public virtual string PandaExpress { get; set; }
     }
 }

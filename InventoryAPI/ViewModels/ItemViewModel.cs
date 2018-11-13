@@ -36,5 +36,12 @@ namespace InventoryAPI.ViewModels
         /// The name of the dedicated db table/collection for this item (e.g. Television, Vehicle, etc.).
         /// </summary>
         public string ReferenceTable { get; set; }
+
+        public FetalViewModel Fetal { get; set; }
+    }
+
+    public class FetalViewModel
+    {
+        public string PandaExpress { get; set; }
     }
 }
