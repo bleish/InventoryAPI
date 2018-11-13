@@ -6,11 +6,11 @@ namespace InventoryAPI.ViewModels
         
         public string Notes { get; set; }
 
-        public FetalClassPatchViewModel Fetal { get; set; }
+        public PatchTestingPatchViewModel PatchTesting { get; set; }
     }
 
-    public class FetalClassPatchViewModel
+    public class PatchTestingPatchViewModel
     {
-        public string PandaExpress { get; set; }
+        public string PatchTest { get; set; }
     }
 }

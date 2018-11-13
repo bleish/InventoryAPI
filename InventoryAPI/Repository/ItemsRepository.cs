@@ -1,4 +1,3 @@
-using ChangeTracking;
 using InventoryAPI.Configuration;
 using InventoryAPI.Models;
 using Microsoft.Extensions.Options;
@@ -7,7 +6,6 @@ using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace InventoryAPI.Repository
@@ -62,6 +60,30 @@ namespace InventoryAPI.Repository
             return actionResult.IsAcknowledged && actionResult.ModifiedCount > 0;
         }
 
+        public async Task<bool> UpdatePartial(string itemId, Item item)
+        {
+            var operations = BuildOperations(item);
+            var updates = new List<UpdateDefinition<Item>>();
+
+            foreach (var operation in operations)
+            {
+                if (operation.Value != null)
+                {
+                    dynamic value = Convert.ChangeType(operation.Value, operation.Type);
+                    updates.Add(Builders<Item>.Update.Set(operation.Path, value));
+                }
+                else
+                {
+                    updates.Add(Builders<Item>.Update.Set(operation.Path, operation.Value));
+                }
+            }
+
+            var partialUpdate = Builders<Item>.Update.Combine(updates);
+            var actionResult = await Collection.UpdateOneAsync(i => i.Id == item.Id, partialUpdate);
+
+            return actionResult.IsAcknowledged && actionResult.MatchedCount > 0;
+        }
+
         private List<MongoOperation> BuildOperations(object obj, string parentName = null)
         {
             var operations = new List<MongoOperation>();
@@ -103,103 +125,6 @@ namespace InventoryAPI.Repository
             }
 
             return operations;
-        }
-
-        public async Task<bool> UpdatePartial(string itemId, Item item)
-        {
-            var operations = BuildOperations(item);
-            var updates = new List<UpdateDefinition<Item>>();
-
-            foreach (var operation in operations)
-            {
-                if (operation.Value != null)
-                {
-                    dynamic value = Convert.ChangeType(operation.Value, operation.Type);
-                    updates.Add(Builders<Item>.Update.Set(operation.Path, value));
-                }
-                else
-                {
-                    updates.Add(Builders<Item>.Update.Set(operation.Path, operation.Value));
-                }
-            }
-
-            var partialUpdate = Builders<Item>.Update.Combine(updates);
-            var actionResult = await Collection.UpdateOneAsync(i => i.Id == item.Id, partialUpdate);
-
-            return actionResult.IsAcknowledged && actionResult.MatchedCount > 0;
-
-            // var trackable = item.CastToIChangeTrackable();
-            // var fetalTrackable = item.Fetal.CastToIChangeTrackable();
-
-            // List<UpdateDefinition<Item>> updates = new List<UpdateDefinition<Item>>();
-            // // var update = Builders<Item>.Update;
-            // // var update = new UpdateDefinition<Item>();
-
-            // foreach (var property in trackable.ChangedProperties)
-            // {
-            //     // var prop = item.GetType().GetProperty(property);
-            //     // var type = prop.PropertyType;
-            //     // if (type.Assembly.GetName().Name == "InventoryAPI")
-            //     // {
-            //     //     var stuff = prop.PropertyType.GetProperties();
-            //     // }
-            //     // var value = prop.GetValue(item);
-            //     // dynamic bland = Convert.ChangeType(value, type);
-            //     updates.Add(Builders<Item>.Update.Set(property, "hi"));
-            // }
-
-            // var combination = Builders<Item>.Update;
-
-            // UpdateDefinition<Item> update = combination.Combine(updates);
-
-            // var actionResult = await Collection.UpdateOneAsync(i => i.Id == item.Id, update);
-
-            // return actionResult.IsAcknowledged && actionResult.MatchedCount > 0;
-
-            // var update = Builders<Item>.Update;
-            // foreach (var operation in changeDoc.Operations)
-            // {
-            //     if (operation.Operation == ItemUpdateOperationType.Replace)
-            //     {
-            //         update.Set(i => i.Notes = )
-            //         var bleh = typeof(Item).GetProperty(operation.Path);
-            //         var bleh2 = Convert.ChangeType(operation.Value, bleh.PropertyType);
-            //         update.Set()
-            //     }
-            // }
-
-            // TODO: Delete this
-            // if (changeDoc.ElementCount > 0)
-            // {
-            //     var filter = Builders<BsonDocument>.Filter.Eq("_id", new ObjectId(itemId));
-            //     UpdateDefinition<BsonDocument> update = changeDoc;
-            //     var actionResult = await RawCollection.UpdateOneAsync(filter, update);
-            //     return actionResult.IsAcknowledged && actionResult.MatchedCount > 0;
-            // }
-            // return false;
-
-            // TODO: Delete this
-            // var itemObjId = new ObjectId(itemId);
-            // var itemBson = item.ToBsonDocument();
-            // if (itemBson.ElementCount > 0)
-            // {
-            //     var filter = Builders<BsonDocument>.Filter.Eq("_id", itemObjId);
-            //     var update = new BsonDocumentUpdateDefinition<BsonDocument>(new BsonDocument("$set", itemBson));
-            //     var actionResult = await RawCollection.UpdateOneAsync(filter, update);
-            //     return actionResult.IsAcknowledged && actionResult.MatchedCount > 0;
-            // }
-            // return false;
-
-            // TODO: Delete this
-            // var update = Builders<Item>.Update.Set(item);
-            // var actionResult = await Collection.UpdateOneAsync(i => i.Id == itemId, update);
-            
-            // var partialItem = BsonDocument.Parse(changes);
-            // var filter = Builders<BsonDocument>.Filter.Eq("_id", itemId);
-            // UpdateDefinition<BsonDocument> update = new BsonDocumentUpdateDefinition<BsonDocument>(new BsonDocument("$set", partialItem));
-            // var actionResult = await BsonCollection.UpdateOneAsync(filter, update);
-
-            // return actionResult.IsAcknowledged && actionResult.MatchedCount > 0;
         }
     }
 

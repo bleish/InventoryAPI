@@ -37,11 +37,14 @@ namespace InventoryAPI.ViewModels
         /// </summary>
         public string ReferenceTable { get; set; }
 
-        public FetalViewModel Fetal { get; set; }
+        /// <summary>
+        /// This is a temporary property used to test the patch operation
+        /// </summary>
+        public PatchTestingViewModel PatchTesting { get; set; }
     }
 
-    public class FetalViewModel
+    public class PatchTestingViewModel
     {
-        public string PandaExpress { get; set; }
+        public string PatchTest { get; set; }
     }
 }

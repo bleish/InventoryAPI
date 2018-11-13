@@ -1,21 +1,12 @@
 using AutoMapper;
-using Castle.DynamicProxy;
 using ChangeTracking;
 using InventoryAPI.Models;
 using InventoryAPI.Repository;
 using InventoryAPI.ViewModels;
 using Microsoft.AspNetCore.JsonPatch;
-using Microsoft.AspNetCore.JsonPatch.Operations;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CSharp.RuntimeBinder;
 using MongoDB.Bson;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Dynamic;
-using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace ItemsListAPI.Controllers
@@ -132,127 +123,12 @@ namespace ItemsListAPI.Controllers
             }
 
             var trackedItem = item.AsTrackable();
-
             _mapper.Map(patchViewModel, trackedItem);
-            
-            // CHANGED PROPERTIES CHECKER
 
-            // var trackable = trackedItem.CastToIChangeTrackable();
-            // var changes = trackable.ChangedProperties;
-            // var subTrackable = trackedItem.Fetal.CastToIChangeTrackable();
-            // var subChanges = subTrackable.ChangedProperties;
-
-            // THE CODE
-
-            // var operations = new List<MongoOperation>();
-
-            // var trackable = trackedItem.CastToIChangeTrackable();
-            // foreach (var changedProperty in trackable.ChangedProperties)
-            // {
-            //     var propertyInfo = trackedItem.GetType().GetProperty(changedProperty);
-            //     var value = propertyInfo.GetValue(trackedItem);
-            //     operations.Add(new MongoOperation
-            //     {
-            //         Path = changedProperty,
-            //         Value = value,
-            //         Type = propertyInfo.PropertyType
-            //     });
-            // }
-            
-            // var itemProperties = trackedItem.GetType().GetProperties();
-            // foreach (var property in itemProperties)
-            // {
-            //     var propValue = trackedItem.GetType().GetProperty(property.Name).GetValue(trackedItem);
-            //     if (propValue != null)
-            //     {
-            //         if (propValue.GetType().Namespace == "Castle.Proxies")
-            //         {
-            //             var changedInfo = propValue.GetType().GetProperties().Where(p => p.Name == "ChangedProperties")?.FirstOrDefault();
-            //             if (changedInfo != null)
-            //             {
-            //                 var changedObject = changedInfo.GetValue(propValue);
-            //                 var changedProperties = (IEnumerable<string>)changedObject;
-            //                 foreach(var changedProperty in changedProperties)
-            //                 {
-            //                     var path = $"{property.Name}.{changedProperty}";
-            //                     var propertyInfo = property.PropertyType.GetProperty(changedProperty);
-            //                     var value = propertyInfo.GetValue(propValue);
-            //                     operations.Add(new MongoOperation
-            //                     {
-            //                         Path = path,
-            //                         Value = value,
-            //                         Type = propertyInfo.PropertyType
-
-            //                     });
-            //                 }
-            //             }
-            //         }
-            //     }
-            // }
-
-            // var check = "";
-
-            // foreach (var operation in operations)
-            // {
-            //     if (operation.Value != null)
-            //     {
-            //         dynamic changed = Convert.ChangeType(operation.Value, operation.Type);
-            //         var check2 = "";
-            //     }
-            // }
-
-            // TODO: Remove this
-            // var patchModel = new ItemPatchViewModel
-            // {
-            //     Cost = patchViewModel.Cost == item.Cost ? null : patchViewModel.Cost,
-            //     Notes = patchViewModel.Notes == item.Notes ? null : patchViewModel.Notes
-            // };
-
-            // var funch = await _itemsRepository.UpdatePartial(id, _mapper.Map<PartialItem>(patchModel));
-
-            // var FUNCH = await _itemsRepository.UpdatePartial(id, GetChangeDocument(patch));
-
-            // var itemUpdate = new ItemUpdate {
-            //     Replace = patch.Operations.Where(o => o.OperationType == OperationType.Replace).ToDictionary(o => o.path, o => o.value),
-            //     Remove = patch.Operations.Where(o => o.OperationType == OperationType.Remove).ToDictionary(o => o.path, o => o.value)
-            // };
-
-            // var SUPERFUNCH = await _itemsRepository.UpdatePartial(id, itemUpdate.ToBsonDocument());
-
-            // var itemUpdate = new ItemUpdate
-            // {
-            //     Operations = _mapper.Map<List<ItemUpdateOperation>>(patch.Operations)
-            // };
-
-            // var ULTRAMEGAFUNCH = await _itemsRepository.UpdatePartial(id, itemUpdate.ToBsonDocument());
-
-            var result = await _itemsRepository.UpdatePartial(id, trackedItem);
+            await _itemsRepository.UpdatePartial(id, trackedItem);
 
             return NoContent();
         }
-
-        // TODO: Remove this
-        // private BsonDocument GetChangeDocument(JsonPatchDocument<ItemPatchViewModel> patch)
-        // {
-        //     var changeDoc = new BsonDocument();
-        //     foreach (var operation in patch.Operations)
-        //     {
-        //         var fieldChange = new BsonDocument(new Dictionary<string, object> { [operation.path] = operation.value });
-        //         switch (operation.OperationType)
-        //         {
-        //             case OperationType.Replace:
-        //                 changeDoc["$set"] = fieldChange;
-        //                 break;
-        //             case OperationType.Remove:
-        //                 changeDoc["$unset"] = fieldChange;
-        //                 break;
-        //             default:
-        //                 throw new Exception();
-        //         }
-        //     }
-
-        //     return changeDoc;
-        // }
 
         /// <summary>
         /// Removes a single inventory item.
@@ -273,12 +149,5 @@ namespace ItemsListAPI.Controllers
             await _itemsRepository.Remove(id);
             return NoContent();
         }
-    }
-
-    public class MongoOperation
-    {
-        public string Path { get; set; }
-        public object Value { get; set; }
-        public Type Type { get; set; }
     }
 }

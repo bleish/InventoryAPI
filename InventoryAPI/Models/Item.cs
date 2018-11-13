@@ -34,13 +34,13 @@ namespace InventoryAPI.Models
         [BsonIgnoreIfNull]
         public virtual string ReferenceTable { get; set; }
 
-        [BsonElement("fetal")]
+        [BsonElement("patchTesting")]
         [BsonIgnoreIfNull]
-        public virtual FetalClass Fetal { get; set; }
+        public virtual PatchTesting PatchTesting { get; set; }
     }
 
-    public class FetalClass
+    public class PatchTesting
     {
-        public virtual string PandaExpress { get; set; }
+        public virtual string PatchTest { get; set; }
     }
 }
