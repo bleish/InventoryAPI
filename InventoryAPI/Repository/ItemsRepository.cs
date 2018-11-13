@@ -1,7 +1,6 @@
 using InventoryAPI.Configuration;
 using InventoryAPI.Models;
 using Microsoft.Extensions.Options;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -13,7 +12,6 @@ namespace InventoryAPI.Repository
     public class ItemsRepository : IItemsRepository
     {
         private IMongoCollection<Item> Collection { get; set; }
-        private IMongoCollection<BsonDocument> RawCollection { get; set; }
 
         public ItemsRepository(IOptions<MongoConnectionConfiguration> options)
         {
@@ -21,7 +19,6 @@ namespace InventoryAPI.Repository
             var client = new MongoClient(options.Value.ConnectionString);
             var database = client.GetDatabase(options.Value.Database);
             Collection = database.GetCollection<Item>("items");
-            RawCollection = database.GetCollection<BsonDocument>("items");
         }
 
         public async Task<IEnumerable<Item>> GetMany()
